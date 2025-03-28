@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+import cgi
+import html
+import sqlite3
+import hashlib
+
+
+from func.func import * 
+
+base = sqlite3.connect ("data/database.sqlite3")
+cursor = base.cursor ()
+
+cursor.execute (r"""CREATE TABLE IF NOT EXISTS "users" (
+                "user" varchar (64),
+                "email" varchar (64),
+                "password" varchar (64));""")
+form = cgi.FieldStorage()
+
+if "user" in form and "email" in form and "pass" in form:
+    user = form["user"].value
+    email = form["email"].value
+    
+    pas = form["pass"].value
+    pass_sh256 = hash_object = hashlib.sha256(pas.encode())
+
+    cursor.execute("INSERT INTO users (user, email, password) VALUES (?, ?, ?);",(user, email, pass_sh256.hexdigest()))
+    base.commit()
+
+print(template_return("connextion"))
