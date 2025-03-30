@@ -1,0 +1,60 @@
+#!/usr/bin/python3
+from src import serv
+
+import cgi
+import html
+import sqlite3
+import hashlib
+import time
+
+base = sqlite3.connect ("data/database.sqlite3")
+cursor = base.cursor ()
+
+
+cursor.execute (r"""CREATE TABLE IF NOT EXISTS "users" (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                "admin" short,
+                "user" varchar (64),
+                "email" varchar (64),
+                "password" varchar (64),
+                dt datetime default current_timestamp
+                );""")
+
+form = cgi.FieldStorage()
+
+# refaire care tres tres moche
+if "submit" in form: 
+    if "user" in form and "email" in form and "pass" in form:
+        user = form["user"].value.strip()    
+        email = form["email"].value.strip()
+
+        pas = form["pass"].value.strip()
+        pass_sh256 = hash_object = hashlib.sha256(pas.encode())
+
+        cursor.execute("SELECT user FROM users WHERE user = ?", (user,))
+        existing_user = cursor.fetchone()
+
+        if(not existing_user):
+            cursor.execute("SELECT user FROM users WHERE email = ?", (email,))
+            existing_email = cursor.fetchone()
+            if(not existing_email):    
+                if(len(pas) >= 7):
+                    cursor.execute("INSERT INTO users (user, email, password,admin) VALUES (?, ?, ?, 0);",(user, email, pass_sh256.hexdigest()))
+                    base.commit()
+                    serv.ft_redirect('index')
+
+                else:
+                    time.sleep(2) # ralentire les attack pare brute force
+                    page = serv.ft_return_template("inscription") 
+                    print(serv.ft_value(page,"message_erreur","Password invalide"))
+            else : 
+                time.sleep(2) # ralentire les attack pare brute force
+                page = serv.ft_return_template("inscription") 
+                print(serv.ft_value(page,"message_erreur","Email invalide"))
+        else:
+            time.sleep(2) # ralentire les attack pare brute force
+            page = serv.ft_return_template("inscription") 
+            print(serv.ft_value(page,"message_erreur","User name invalide"))
+else:
+    page = serv.ft_return_template("inscription") 
+    print(serv.ft_value(page,"message_erreur",""))

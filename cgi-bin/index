@@ -1,9 +1,3 @@
 #!/usr/bin/python3
-import cgi
-import html
-import sqlite3
-
-from func.func import * 
-
-file = template_return("index")
-print(file)
+from src import serv
+print(serv.ft_return_template("index"))

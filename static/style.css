@@ -1,0 +1,102 @@
+*{
+    /* declaration variable couleur nigth*/
+    --color_01 : rgb(0, 0, 0);
+    --color_02 : rgb(43, 43, 43);
+    --color_03 : rgb(112, 112, 112);
+
+    --color_texte : rgb(255, 255, 255);
+
+    /* basic reset css */
+    padding: 0%;
+    margin: 0%;
+    list-style: none;
+    text-decoration: none;
+}
+
+h1{
+    color: var(--color_texte);
+}
+
+a{
+    color: var(--color_texte);
+}
+
+body{
+    background-color: var(--color_01);
+    color: var(--color_texte);
+}
+
+nav{
+    background-color: var(--color_02);
+    height: 70px;
+    width: 100%;
+}
+
+nav>ul{
+    padding-left: 5%;
+    height: 90%;
+    width: 95%;
+
+    display: flex;
+    align-items: center;
+}
+
+nav>ul>:nth-child(2){
+    padding-left: 2%;
+}
+
+nav>ul>:nth-child(3){
+    position: absolute;
+    right: 5%;
+}
+
+.login_div{
+    height: 70vh;
+    width: 50vh;
+    transform: translate(-50% , -50%);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background-color: var(--color_02);
+    border-radius: 10px;
+}
+
+.login_div>h1{
+    padding: 5vh 0px;
+    text-align: center;
+}
+
+.ul_login{
+    display: flex;
+    
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.ul_login>li{
+    width: 80%;
+    padding: 1vh 0px;
+}
+
+.ul_login>li>input{
+    width: 100%;
+    height: 30px;
+    color: var(--color_texte);
+    background-color: var(--color_03);
+    border-color: var(--color_03);
+
+}
+
+.ul_login>div{
+    text-align: center;
+    padding: 10% 0;
+    width: 100%;
+}
+
+.ul_login>div>*{
+    width: 80%;
+    height: 30px;
+
+    border-radius: 10px;
+}
