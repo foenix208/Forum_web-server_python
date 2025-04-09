@@ -3,7 +3,7 @@
 from src import serv
 
 import cgi
-import html
+
 
 import sqlite3
 import hashlib
@@ -34,9 +34,11 @@ if "submit" in form:
         pas = form["pass"].value.strip()
         pass_sh256 = hash_object = hashlib.sha256(pas.encode())
 
+        #? Verification injection sql 
         cursor.execute("SELECT user FROM users WHERE user = ?", (user,))
         existing_user = cursor.fetchone()
 
+        #? Verification injection sql 
         cursor.execute("SELECT user FROM users WHERE email = ?", (email,))
         existing_email = cursor.fetchone()
         
