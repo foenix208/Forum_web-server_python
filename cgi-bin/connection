@@ -1,0 +1,6 @@
+#!/usr/bin/python3
+from src import serv
+
+page = serv.ft_return_template("connection") 
+print(serv.ft_value(page,"message_erreur",""))
+

@@ -1,4 +1,3 @@
-
 def ft_redirect(file):
     print(f"""Content-Type: text/html \n
         <!DOCTYPE html>
@@ -14,10 +13,8 @@ def ft_redirect(file):
         </html>
     """)
 
-
 def ft_value(file,name,value):
     return file.replace(f"^^{name}",value)
-
 
 def ft_return_template(file,type=0):
     try:

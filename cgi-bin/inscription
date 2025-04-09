@@ -1,10 +1,13 @@
 #!/usr/bin/python3
+
 from src import serv
 
 import cgi
 import html
+
 import sqlite3
 import hashlib
+
 import time
 
 base = sqlite3.connect ("data/database.sqlite3")
@@ -22,7 +25,7 @@ cursor.execute (r"""CREATE TABLE IF NOT EXISTS "users" (
 
 form = cgi.FieldStorage()
 
-# refaire care tres tres moche
+# refaire care tres tres mocheP
 if "submit" in form: 
     if "user" in form and "email" in form and "pass" in form:
         user = form["user"].value.strip()    
@@ -34,27 +37,34 @@ if "submit" in form:
         cursor.execute("SELECT user FROM users WHERE user = ?", (user,))
         existing_user = cursor.fetchone()
 
+        cursor.execute("SELECT user FROM users WHERE email = ?", (email,))
+        existing_email = cursor.fetchone()
+        
         if(not existing_user):
-            cursor.execute("SELECT user FROM users WHERE email = ?", (email,))
-            existing_email = cursor.fetchone()
             if(not existing_email):    
+                
                 if(len(pas) >= 7):
                     cursor.execute("INSERT INTO users (user, email, password,admin) VALUES (?, ?, ?, 0);",(user, email, pass_sh256.hexdigest()))
                     base.commit()
                     serv.ft_redirect('index')
-
                 else:
-                    time.sleep(2) # ralentire les attack pare brute force
+                    time.sleep(3)
                     page = serv.ft_return_template("inscription") 
-                    print(serv.ft_value(page,"message_erreur","Password invalide"))
-            else : 
-                time.sleep(2) # ralentire les attack pare brute force
+                    print(serv.ft_value(page,"message_erreur","Le password doit faire 7 caracters "))
+
+            else:
+                time.sleep(3)
                 page = serv.ft_return_template("inscription") 
-                print(serv.ft_value(page,"message_erreur","Email invalide"))
+                print(serv.ft_value(page,"message_erreur","L'email est invalide!"))
+    
         else:
-            time.sleep(2) # ralentire les attack pare brute force
+            time.sleep(3)
             page = serv.ft_return_template("inscription") 
-            print(serv.ft_value(page,"message_erreur","User name invalide"))
-else:
+            print(serv.ft_value(page,"message_erreur","Le username est invalide!"))
+    else:
+        time.sleep(3)
+        page = serv.ft_return_template("inscription") 
+        print(serv.ft_value(page,"message_erreur","Tous les champ sont obligatoires !"))
+else:    
     page = serv.ft_return_template("inscription") 
     print(serv.ft_value(page,"message_erreur",""))
