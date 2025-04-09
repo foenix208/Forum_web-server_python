@@ -1,6 +1,39 @@
 #!/usr/bin/python3
 from src import serv
 
-page = serv.ft_return_template("connection") 
-print(serv.ft_value(page,"message_erreur",""))
+import cgi
+import sqlite3
+import hashlib
+
+import time
+
+
+base = sqlite3.connect ("data/database.sqlite3")
+cursor = base.cursor ()
+
+form = cgi.FieldStorage()
+if "submit" in form:
+    user = form["user"].value.strip()
+    pas = form["pass"].value.strip()
+
+    pass_sh256 = hash_object = hashlib.sha256(pas.encode())
+    
+    #! Erreur sql , /!\ Injection possible 
+    cursor.execute(r"""SELECT "user" FROM "users" WHERE user = ? and password = ?""" , (user,pass_sh256.hexdigest(),))
+    toto = cursor.fetchall()
+
+    if (len(toto) == 1): #Connection valide
+        page = serv.ft_return_template("connection") 
+        print(serv.ft_value(page,"message_erreur",str(toto[0])))
+
+
+    else:
+        page = serv.ft_return_template("connection") 
+        print(serv.ft_value(page,"message_erreur","Password/User invalide"))
+
+
+
+else:
+    page = serv.ft_return_template("connection") 
+    print(serv.ft_value(page,"message_erreur",""))
 
