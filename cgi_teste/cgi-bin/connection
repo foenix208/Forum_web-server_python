@@ -1,0 +1,111 @@
+#!/usr/bin/python3
+
+import cgi 
+import sqlite3 # import librairy pour sqlite  
+import hashlib # importe librairy pour hashage 
+
+
+import time
+import uuid # importe librairy pour creation id 
+import http.cookies # importe librairy pour creation id
+import os 
+
+# Fichier de cookie
+SESSION_DIR = "/tmp/session"
+os.makedirs(SESSION_DIR, exist_ok=True)
+
+# Créer une instance de cookie
+cookie = http.cookies.SimpleCookie(os.environ.get("HTTP_COOKIE"))
+session_id = cookie.get("session_id")
+new_id = False
+
+# Creation du fichier sqlite3 
+base = sqlite3.connect("data/database.sqlite3")
+cursor = base.cursor()
+
+# Creation de table sql Users
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        admin INTEGER,
+        user VARCHAR(64),
+        password VARCHAR(255),
+        dt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+""")
+
+# Creation de la table Sessions
+#todo verifier la taile ip 
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Sessions(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_user INTEGER,
+        finish INTEGER,
+        session VARCHAR(64),
+        creation DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ip VARCHAR(64),
+        FOREIGN KEY (id_user) REFERENCES users(id)
+    )
+""")
+
+# Si session_id existe (utilisateur déjà connecté), on effectue la redirection
+#TODO A modifier tres moche 
+if session_id:
+    cursor.execute("SELECT * FROM Sessions WHERE session=?;",(session_id.value ,))
+    if (cursor.fetchone()):
+        print("Content-Type: text/html")  # Type de contenu
+        print("Location: http://python.org/")  # URL de destination pour la redirection
+        print("""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Document</title> 
+            <meta http-equiv="refresh" content='0; URL=index'>
+        </head>
+        <body>
+            
+        </body>
+        </html>""")
+        exit()
+
+
+form = cgi.FieldStorage() # Recuperation POST 
+if "user" in form and "pass" in form:
+    user = form["user"].value.strip()
+    password = form["pass"].value.strip()
+
+    cursor.execute("SELECT * FROM Users WHERE user=? and password = ?;",(user,password)) # Verification de l'username 
+    resulta = cursor.fetchone()
+    if(resulta):
+            #cursor.execute("DELETE FROM Sessions WHERE id_user=?;", (resulta[0],))
+            session_id = str(uuid.uuid4())
+            cursor.execute("UPDATE Sessions SET session = ?, creation = CURRENT_TIMESTAMP WHERE id = ?", (session_id, resulta[0]))
+            base.commit()
+
+# Envois du code html
+print("Content-Type: text/html")
+if new_id:
+    print(f"Set-Cookie: session_id={session_id}\n")
+print("""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection</title>
+</head>
+<body>
+    <form method="post">
+        <p>user</p>
+        <input name="user" type="text" id="user">
+      
+        <p>pass</p>
+        <input name="pass" type="password" id="password">
+
+        <input type="submit">
+    </form>
+</body>
+</html>
+""")

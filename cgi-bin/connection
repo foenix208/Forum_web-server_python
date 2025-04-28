@@ -4,9 +4,7 @@ from src import serv
 import cgi
 import sqlite3
 import hashlib
-
 import time
-
 
 base = sqlite3.connect ("data/database.sqlite3")
 cursor = base.cursor ()
@@ -25,14 +23,11 @@ if "submit" in form:
     if (len(toto) == 1): #Connection valide
         page = serv.ft_return_template("connection") 
         print(serv.ft_value(page,"message_erreur",str(toto[0])))
-
-
+        
+        #TODO gestion des Cookie & session 
     else:
         page = serv.ft_return_template("connection") 
         print(serv.ft_value(page,"message_erreur","Password/User invalide"))
-
-
-
 else:
     page = serv.ft_return_template("connection") 
     print(serv.ft_value(page,"message_erreur",""))
