@@ -70,7 +70,6 @@ if session_id:
         </html>""")
         exit()
 
-
 form = cgi.FieldStorage() # Recuperation POST 
 if "user" in form and "pass" in form:
     user = form["user"].value.strip()
@@ -83,6 +82,9 @@ if "user" in form and "pass" in form:
             session_id = str(uuid.uuid4())
             cursor.execute("UPDATE Sessions SET session = ?, creation = CURRENT_TIMESTAMP WHERE id = ?", (session_id, resulta[0]))
             base.commit()
+            
+            #! Refaire la requetes sql avec un JOiN 
+            #TODO pas de cookie envoyer 
 
 # Envois du code html
 print("Content-Type: text/html")

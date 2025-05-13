@@ -1,6 +1,8 @@
 #!/usr/bin/python3
+
 import cgi 
 import sqlite3 # import librairy pour sqlite  
+import hashlib # importe librairy pour hashage 
 
 import time
 import uuid # importe librairy pour creation id 
@@ -32,7 +34,6 @@ cursor.execute("""
 """)
 
 # Creation de la table Sessions
-#todo verifier la taile ip 
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS Sessions(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,46 +41,18 @@ cursor.execute("""
         finish INTEGER,
         session VARCHAR(64),
         creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ip VARCHAR(16),
+        ip VARCHAR(64),
         FOREIGN KEY (id_user) REFERENCES users(id)
     )
 """)
 
-if session_id:
-    cursor.execute("""SELECT * from Users INNER JOIN Sessions on Users.id=Sessions.id_user WHERE Users.id=1;""")
-    resulta = cursor.fetchone()
-    #TODO Verification de la validiter du token  session 
-    
-    print("""Content-Type: text/html""")
-    print(f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-    </head>
-    <body>
-        <p>{resulta[2]}</p>
-    </body>
-    </html>
-    """)
+# Creation de la table Posts
+cursor.execute("""CREATE TABLE IF NOT EXISTS Posts(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_user INTEGER,
+        creation DATETIME DEFAULT CURRENT_TIMESTAMP,
+        titel VARCHAR(64),
+        texte VARCHAR(1024)
+    )
+""")
 
-
-
-
-else:
-    print("""Content-Type: text/html""")
-    print("""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-    </head>
-    <body>
-        <p>home</p>
-    </body>
-    </html>
-    """)

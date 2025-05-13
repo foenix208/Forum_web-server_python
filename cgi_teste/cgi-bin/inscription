@@ -70,6 +70,7 @@ if session_id:
         </html>""")
         exit()
 
+
 form =  cgi.FieldStorage() # Recuperation POST 
 if "user" in form and "pass" in form:
     user = form["user"].value.strip()
