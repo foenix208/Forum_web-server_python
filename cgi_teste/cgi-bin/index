@@ -33,7 +33,7 @@ cursor.execute("""
 
 # Creation de la table Sessions
 #todo verifier la taile ip 
-cursor.execute("""
+cursor.execute(""" 
     CREATE TABLE IF NOT EXISTS Sessions(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         id_user INTEGER,
@@ -46,40 +46,57 @@ cursor.execute("""
 """)
 
 if session_id:
-    cursor.execute("""SELECT * from Users INNER JOIN Sessions on Users.id=Sessions.id_user WHERE Users.id=1;""")
+    cursor.execute("SELECT * FROM Users INNER JOIN Sessions ON Users.id = Sessions.id_user WHERE Sessions.session = ?",
+    (session_id.value,))
     resulta = cursor.fetchone()
-    #TODO Verification de la validiter du token  session 
+    if resulta : 
+        # print("""Content-Type: text/html""")
+        # print(f"""
+        # <!DOCTYPE html>
+        # <html lang="en">
+        # <head>
+        #     <meta charset="UTF-8">
+        #     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        #     <title>Document</title>
+        # </head>
+        # <body>
+        #     <p>{resulta[2]}</p>
+        # </body>
+        # </html>""")
+        # exit()
+        pass
+
+
+cursor.execute("""
+    SELECT Posts.id, Posts.titel, Posts.texte, Users.user
+    FROM Posts
+    INNER JOIN Users ON Posts.id_user = Users.id
+""")
+rows = cursor.fetchall()
+
+add = ""
+for post in rows:
+    post_id, titre, texte, auteur = post
+    add += f"""
+    <div>
+        <h3>{titre}</h3>
+        <a href='post?id_post={post_id}'>{texte}</a>
+        <p>Auteur : {auteur}</p>
+    </div>
+    """
+
     
-    print("""Content-Type: text/html""")
-    print(f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-    </head>
-    <body>
-        <p>{resulta[2]}</p>
-    </body>
-    </html>
-    """)
-
-
-
-
-else:
-    print("""Content-Type: text/html""")
-    print("""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-    </head>
-    <body>
-        <p>home</p>
-    </body>
-    </html>
-    """)
+print("""Content-Type: text/html""")
+print(f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p>{add}</p>
+</body>
+</html>
+""")

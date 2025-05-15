@@ -1,0 +1,70 @@
+#!/usr/bin/python3
+
+import cgi 
+import sqlite3 # import librairy pour sqlite  
+
+import time
+import uuid # importe librairy pour creation id 
+import http.cookies # importe librairy pour creation id
+import os 
+
+# Fichier de cookie
+SESSION_DIR = "/tmp/session"
+os.makedirs(SESSION_DIR, exist_ok=True)
+
+# Créer une instance de cookie
+cookie = http.cookies.SimpleCookie(os.environ.get("HTTP_COOKIE"))
+session_id = cookie.get("session_id")
+new_id = False
+
+# Creation du fichier sqlite3 
+base = sqlite3.connect("data/database.sqlite3")
+cursor = base.cursor()
+
+cursor.execute("""
+   CREATE TABLE IF NOT EXISTS Reponce (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_user INTEGER,
+        id_post INTEGER,
+        responce VARCHAR(64),
+        FOREIGN KEY (id_user) REFERENCES users(id)
+   );
+""")
+
+# Creation de table sql Users
+form = cgi.FieldStorage()
+id = form.getvalue("id_post") #! verrifier cette entres 
+
+#cursor.execute("SELECT * FROM Posts WHERE id=(?)",(id,))
+cursor.execute("""
+    SELECT Posts.id, Posts.titel, Posts.texte, Users.user
+    FROM Posts
+    INNER JOIN Users ON Posts.id_user = Users.id
+    WHERE Posts.id = ?
+""", (id,))
+rows = cursor.fetchall()
+post_id, titre, texte, auteur = rows[0]
+
+print("""Content-Type: text/html""")
+print(f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{titre}</h1>
+    <p>{texte}<p>
+    <p>{auteur}<p>
+
+    <hr>
+
+    <form method="post">
+        <br>
+        <textarea name="post" id="post" rows="5" cols="35">Ecriver votre responce</textarea><br>
+        <input type="submit">
+    </form>
+</body>
+</html>""")

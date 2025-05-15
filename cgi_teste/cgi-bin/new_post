@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 import cgi 
 import sqlite3 # import librairy pour sqlite  
 import hashlib # importe librairy pour hashage 
@@ -16,7 +15,6 @@ os.makedirs(SESSION_DIR, exist_ok=True)
 # Créer une instance de cookie
 cookie = http.cookies.SimpleCookie(os.environ.get("HTTP_COOKIE"))
 session_id = cookie.get("session_id")
-new_id = False
 
 # Creation du fichier sqlite3 
 base = sqlite3.connect("data/database.sqlite3")
@@ -56,3 +54,57 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS Posts(
     )
 """)
 
+if not session_id:
+    print("Content-Type: text/html")  # Type de contenu
+    print("Location: http://python.org/")  # URL de destination pour la redirection
+    print("""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title> 
+        <meta http-equiv="refresh" content='0; URL=index'>
+    </head>
+    <body>
+        
+    </body>
+    </html>""")
+    exit()
+
+form =  cgi.FieldStorage() # Recuperation POST 
+if "titre" in form and "post" in form:
+    titre = form["titre"].value.strip()
+    posts = form["post"].value.strip()
+    
+    cursor.execute("SELECT * FROM Users INNER JOIN Sessions ON Users.id = Sessions.id_user WHERE Sessions.session = ?",
+    (session_id.value,))
+    resulta = cursor.fetchone()
+
+    cursor.execute("INSERT INTO Posts (id_user,titel, texte) VALUES (?,?, ?)", (resulta[0],titre, posts))
+    base.commit()
+
+print("Content-Type: text/html")
+print("""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form method="post">
+        
+        <label for="Titre">Titre du Posts</label><br>
+        <input type="text" name="titre" id="titre">
+        <br>
+        <textarea name="post" id="post" rows="12" cols="35">Ecriver votre post</textarea><br>
+        
+        <input type="submit">
+    </form>
+</body>
+</html>
+</html>
+""")

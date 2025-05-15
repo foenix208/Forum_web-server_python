@@ -25,7 +25,7 @@ cursor = base.cursor()
 
 # Creation de table sql Users
 cursor.execute("""
-    CREATE TABLE IF NOT EXISTS Users (
+        CREATE TABLE IF NOT EXISTS Users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         admin INTEGER,
         user VARCHAR(64),
@@ -70,8 +70,8 @@ if session_id:
         </html>""")
         exit()
 
-
 form =  cgi.FieldStorage() # Recuperation POST 
+
 if "user" in form and "pass" in form:
     user = form["user"].value.strip()
     password = form["pass"].value.strip()
@@ -94,6 +94,7 @@ if "user" in form and "pass" in form:
 
 # Envois du code html
 print("Content-Type: text/html")
+
 if new_id:
     print(f"Set-Cookie: session_id={session_id}\n")
 
